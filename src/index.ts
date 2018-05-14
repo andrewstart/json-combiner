@@ -48,12 +48,12 @@ json-combiner usage:
         {
             err.forEach((e) =>
             {
-                process.stderr.write(e.message);
+                process.stderr.write(e.message + '\n');
             });
         }
         else
         {
-            process.stderr.write(err.message);
+            process.stderr.write(err.message + '\n');
         }
     });
 }
