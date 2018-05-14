@@ -61,7 +61,7 @@ json-combiner usage:
 
 export async function combine(src:string):Promise<object>
 {
-    return readDir(src);
+    return readDir(src, src);
 }
 
 async function save(data:object, out:string, minify = false):Promise<void>
@@ -69,7 +69,7 @@ async function save(data:object, out:string, minify = false):Promise<void>
     return fs.writeFile(out, JSON.stringify(data, null, minify ? undefined : 4));
 }
 
-async function readDir(dir:string):Promise<object>
+async function readDir(dir:string, baseDir:string):Promise<object>
 {
     const isArray = dir.endsWith('[]');
     const out: any = isArray ? [] : {};
@@ -92,7 +92,7 @@ async function readDir(dir:string):Promise<object>
                 {
                     filename = filename.substr(0, filename.length - 2);
                 }
-                fileData = await readDir(filePath);
+                fileData = await readDir(filePath, baseDir);
             }
             //read JSON files, stripping out comments
             else if (ext === '.json')
@@ -167,7 +167,7 @@ async function readDir(dir:string):Promise<object>
             if (!e)
             {
                 //dunno what might be rejecting with no value, but just in case
-                errors.push(new Error(`Unknown error processing ${filePath}`));
+                errors.push(new Error(`Unknown error processing ${filePath.replace(baseDir, '')}`));
             }
             else if (Array.isArray(e))
             {
@@ -177,7 +177,7 @@ async function readDir(dir:string):Promise<object>
             else
             {
                 //assume Error
-                errors.push(`Error processing ${filePath}: ${e.message}`);
+                errors.push(`Error processing ${filePath.replace(baseDir, '')}: ${e.message}`);
             }
         }
     }
