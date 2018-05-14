@@ -20,7 +20,20 @@
       "README.md",
       "LICENSE"
   ],
-  "author": "",
+  "author": {
+      "name": "Andrew Start",
+      "url": "https://github.com/andrewstart"
+  },
+  "contributors": [
+    {
+      "name": "Matt Szklarz",
+      "url": "https://github.com/matteszk"
+    },
+    {
+      "name": "Matt Karl",
+      "url": "https://github.com/bigtimebuddy"
+    }
+  ],
   "license": "MIT",
   "dependencies": {
     "fs-extra": "^6.0.1",
