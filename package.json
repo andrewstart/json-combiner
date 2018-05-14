@@ -1,0 +1,40 @@
+{
+  "name": "json-combiner",
+  "version": "1.0.0",
+  "description": "Combines JSON file, using folder structure to determine JSON structure",
+  "typings": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "bin": {
+    "json-combiner": "./bin/json-combiner.js"
+  },
+  "scripts": {
+    "build": "npm run lint && npm run tsc",
+    "tsc": "tsc",
+    "lint": "tslint -c tslint.json src/**/*.ts",
+    "test": "mocha tests/index.js",
+    "watch": "tsc -w"
+  },
+  "files": [
+      "lib",
+      "bin",
+      "README.md",
+      "LICENSE"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^6.0.1",
+    "json5": "^1.0.1",
+    "minimist": "^1.2.0",
+    "strip-json-comments": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^5.0.2",
+    "@types/minimist": "^1.2.0",
+    "@types/node": "^8.10.3",
+    "@types/strip-json-comments": "0.0.30",
+    "mocha": "^5.1.1",
+    "tslint": "^5.9.1",
+    "typescript": "~2.8.1"
+  }
+}

@@ -1,0 +1,13 @@
+{
+    "rules": {
+        "curly": true,
+        "jsdoc-format": true,
+        "no-debugger": true,
+        "no-duplicate-variable": true,
+        "no-empty": true,
+        "no-unused-expression": true,
+        "no-var-keyword": true,
+        "semicolon": [true, "always"],
+        "triple-equals": true
+    }
+}

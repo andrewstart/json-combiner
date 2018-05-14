@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "outDir": "lib",
+        "declaration": true,
+        "declarationDir": "lib",
+        "inlineSources": true,
+        "sourceMap": true,
+        "target": "es6",
+        "allowJs": false,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "noUnusedLocals": true,
+        "noImplicitAny": true,
+        "stripInternal": true
+    },
+    "compileOnSave": false,
+    "include": [
+        "src/**/*.ts"
+    ]
+}
