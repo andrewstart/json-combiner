@@ -177,7 +177,7 @@ async function readDir(dir:string, baseDir:string):Promise<object>
             else
             {
                 //assume Error
-                errors.push(`Error processing ${filePath.replace(baseDir, '')}: ${e.message}`);
+                errors.push(new Error(`Error processing ${filePath.replace(baseDir, '')}: ${e.message}`));
             }
         }
     }
