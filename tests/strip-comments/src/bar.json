@@ -1,0 +1,8 @@
+{
+	//a surprise comment in json
+	"value": [
+		"a",
+		"b",//another comment
+		"c"
+	]
+}

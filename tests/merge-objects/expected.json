@@ -1,0 +1,10 @@
+{
+	"foo": {
+		"bar": [
+			1,
+			2
+		],
+		"fubar": false,
+		"blah": "lorem ipsum"
+	}
+}
