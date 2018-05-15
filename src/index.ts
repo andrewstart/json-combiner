@@ -176,8 +176,9 @@ async function readDir(dir:string, baseDir:string):Promise<object>
             }
             else
             {
+                const relative = filePath.replace(baseDir, '').replace(/^(\\|\/)/, '');
                 //assume Error
-                errors.push(new Error(`Error processing ${filePath.replace(baseDir, '')}: ${e.message}`));
+                errors.push(new Error(`Error processing ${relative}: ${e.message || e}`));
             }
         }
     }
