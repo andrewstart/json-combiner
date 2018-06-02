@@ -6,10 +6,15 @@ json-combiner will take the following types of files:
  * .json5 - https://json5.org/
  * .js - Uses Node's `require()` to load the file. See below.
 
+## Installation
+`npm install json-combiner`
+
 ## Usage:
     -s, --src  Source to folder of files to combine
     -o, --out  Output JSON path (single file)
     -m, --minify  If the output file should be minified. Default is false.
+
+`json-combiner -s ./configSrc/ -o ./lib/config.json`
 
 ## Examples
 
