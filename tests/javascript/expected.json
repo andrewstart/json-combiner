@@ -5,6 +5,7 @@
 			"a",
 			"b",
 			"c"
-		]
+		],
+		"path": "tests/javascript/src/bar.js"
 	}
 }

@@ -114,20 +114,13 @@ async function readDir(dir:string, baseDir:string):Promise<object>
             //return one
             else if (ext === '.js')
             {
-                fileData = await fs.readFile(filePath, 'utf8');
-                const firstChar = fileData[0];
-                //detect object literals
-                if(firstChar === '{' || firstChar === '[' || firstChar === '\"' ||
-                    firstChar.match(/[0-9]/) || fileData === "false" ||
-                    fileData === "true")
+                //require file
+                fileData = require(filePath);
+                //if they exported a function, assume that that function
+                //returns a promise, and await that
+                if (typeof fileData === 'function')
                 {
-                    fileData = eval("(function(){ return " + fileData + "})()");
-                }
-                //otherwise make a function out of the text and use the
-                //return value
-                else
-                {
-                    fileData = eval("(function(){" + fileData + "})()");
+                    fileData = await fileData();
                 }
             }
             //add to the output
