@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/andrewstart/json-combiner.svg?branch=master)](https://travis-ci.org/andrewstart/json-combiner)
+
 # json-combiner
 json-combiner is a tool that ingests a folder of source files to produce a single
 JSON file with the same structure as the source folder.
