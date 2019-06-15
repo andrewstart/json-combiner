@@ -22,25 +22,21 @@ json-combiner will take the following types of files:
 
 Assuming we have the following source JSON files:
 
-`src/foo/foo-en.json`:
+`src/foo.json`:
 
 ```json
 {
-    "foo": {
-        "title": "The Foo",
-        "name":  "A wonderful component"
-    }
+    "title": "The Foo",
+    "name":  "A wonderful component"
 }
 ```
 
-`src/bar/bar-en.json`:
+`src/bar.json`:
 
 ```json
 {
-    "bar": {
-        "title": "The Bar",
-        "name":  "An even more wonderful component"
-    }
+    "title": "The Bar",
+    "name":  "An even more wonderful component"
 }
 ```
 
