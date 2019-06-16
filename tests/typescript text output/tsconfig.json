@@ -10,7 +10,8 @@
         "module": "commonjs",
         "moduleResolution": "node",
         "noImplicitAny": true,
-        "stripInternal": true
+        "stripInternal": true,
+        "newLine": "lf"
     },
     "compileOnSave": false,
     "include": [
