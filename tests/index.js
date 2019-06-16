@@ -16,6 +16,8 @@ describe('JSON Combiner', function() {
         folders.forEach((folder) => {
             const name = path.basename(folder);
             it(name, function() {
+                this.slow(2000);
+                this.timeout(3500);
                 const expected = require(path.join(folder, 'expected.json'));
                 return combiner.combine(path.join(folder, 'src'))
                 .then((result) => {
@@ -28,7 +30,14 @@ describe('JSON Combiner', function() {
                         throw err;
                     }
                     const errMessage = Array.isArray(err) ? err.map(e => e.message) : err.message;
-                    assert.deepEqual(errMessage, expected, 'Errors should match expected');
+                    if (Array.isArray(errMessage)) {
+                        errMessage.forEach((message, index) => {
+                            assert.ok(message.startsWith(expected[index]), `Expected ${message} to start with or equal ${expected[index]}`);
+                        });
+                    }
+                    else {
+                        assert.deepEqual(errMessage, expected, 'Errors should match expected');
+                    }
                 });
             });
         });

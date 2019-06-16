@@ -7,6 +7,57 @@ import strip = require('strip-json-comments');
 //imported on demand, and apparently the types weren't working correctly,
 //so just using JSON types for it (which is all its types did anyway)
 let JSON5:typeof JSON;
+// import type only so it can be compiled out - actual require is on demand
+import TSNode = require('ts-node');
+let tsNodeRequired:boolean = false;
+
+// import type only so it can be compiled out - actual require is on demand
+import * as typescript from 'typescript';
+let ts:typeof typescript;
+let tsRequired:boolean = false;
+
+function compileTypescript(filename:string, basePath:string):string {
+    if (!tsRequired) {
+        ts = require('typescript');
+    }
+    const configPath = ts.findConfigFile(filename, f => ts.sys.fileExists(f));
+    const opts:typescript.CompilerOptions = configPath ?
+        ts.convertCompilerOptionsFromJson(ts.readConfigFile(configPath, f => ts.sys.readFile(f)).config.compilerOptions, basePath).options :
+        ts.getDefaultCompilerOptions();
+    // disable source map & declaration output because they interfere with our ability to get
+    // simple JS output.
+    opts.sourceMap = false;
+    opts.declaration = false;
+
+    let host = ts.createCompilerHost(opts);
+
+    // append output to a string
+    let output = '';
+    host.writeFile = (_filename, text) => output += text;
+
+    let prog = ts.createProgram([filename], opts, host);
+    
+    // convert base path to play nice with error stripping
+    basePath = basePath.replace(/\\/g, '/') + '/';
+
+    let errs = [
+        ...prog.getSyntacticDiagnostics().map(err => {
+            // TODO: add `:${err.start}`, but converted to be actual line number & character, instead of overall character in file
+            return new Error(`Syntax error in ${err.file.fileName.replace(basePath, '')} - ${err.messageText as string}`);
+        }),
+        ...prog.getSemanticDiagnostics().map(err => {
+            // TODO: add `:${err.start}`, but converted to be actual line number & character, instead of overall character in file
+            return new Error(`Semantic error in ${err.file.fileName.replace(basePath, '')} - ${err.messageText as string}`);
+        })
+    ];
+    if (errs.length) {
+        throw errs;
+    }
+
+    prog.emit();
+
+    return output;
+}
 
 export function cli()
 {
@@ -114,13 +165,47 @@ async function readDir(dir:string, baseDir:string):Promise<object>
             //return one
             else if (ext === '.js')
             {
-                //require file
-                fileData = require(filePath);
-                //if they exported a function, assume that that function
-                //returns a promise, and await that
-                if (typeof fileData === 'function')
+                if (filePath.endsWith('.text.js'))
                 {
-                    fileData = await fileData();
+                    filename = path.basename(files[i], '.text.js');
+                    fileData = await fs.readFile(filePath, 'utf8');
+                }
+                else
+                {
+                    //require file
+                    fileData = require(filePath);
+                    //if they exported a function, assume that that function
+                    //returns a promise, and await that
+                    if (typeof fileData === 'function')
+                    {
+                        fileData = await fileData();
+                    }
+                }
+            }
+            else if (ext === '.ts')
+            {
+                if (filePath.endsWith('.text.ts'))
+                {
+                    filename = path.basename(files[i], '.text.ts');
+                    fileData = compileTypescript(filePath, baseDir);
+                }
+                else
+                {
+                    if (!tsNodeRequired)
+                    {
+                        // TODO: do I need to use TypeScript to find the tsconfig for the file`
+                        // and provide it to the registration?
+                        (require('ts-node') as typeof TSNode).register();
+                        tsNodeRequired = true;
+                    }
+                    //require file
+                    fileData = require(filePath);
+                    //if they exported a function, assume that that function
+                    //returns a promise, and await that
+                    if (typeof fileData === 'function')
+                    {
+                        fileData = await fileData();
+                    }
                 }
             }
             //add to the output

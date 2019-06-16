@@ -7,6 +7,7 @@ json-combiner will take the following types of files:
  * .json - Standard JS comments are stripped out of these files
  * .json5 - https://json5.org/
  * .js - Uses Node's `require()` to load the file. See below.
+ * .ts - Uses ts-node and Node's `require()` to load the file. See below.
 
 ## Installation
 `npm install json-combiner`
@@ -128,9 +129,10 @@ since they are now array index items.
 
 ### Handling JavaScript files
 
-A javascript file will be required, and the module export will be used as the object to be
-stringified. If the module export is a function, then that function will be called to
-obtain the result - if you need to do async stuff then return a promise from your function.
+A JavaScript file will be required (`require()`), and the module export (`module.exports = ...`)
+will be used as the object to be stringified. If the module export is a function, then that
+function will be called to obtain the result - if you need to do async stuff then return a promise
+from your function.
 
 ```js
 module.exports = {
@@ -151,6 +153,27 @@ module.exports = () => {
     });
 };
 ```
+
+### Handling TypeScript files
+
+A TypeScript file will be required (`require()`) using `ts-node`, and the module export (`export = ...`)
+will be used as the object to be stringified. If the module export is a function, then that
+function will be called to obtain the result - if you need to do async stuff then return a promise
+from your function.
+*NOTE:* `ts-node` is a peer dependency, you must provide the version you wish to use.
+
+```typescript
+export = {
+    TWO_PI: Math.PI * 2,
+    foo: "bar"
+};
+```
+
+### Code as Text
+
+If for some reason you want to have JavaScript code inserted into your JSON as a string, use a file
+with a `.text.js` or `.text.ts` (must provide your version of TypeScript) extension. The JavaScript
+code will be added to the output as a string instead of running the code for a result.
 
 ## Credits
 This was originally implemented in https://github.com/SpringRoll/grunt-concat-json

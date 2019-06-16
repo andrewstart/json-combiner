@@ -1,0 +1,11 @@
+{
+	"foo": 17,
+	"bar": {
+		"value": [
+			"b",
+			"c",
+			"a"
+		],
+		"path": "tests/typescript/src/bar.ts"
+	}
+}

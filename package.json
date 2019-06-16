@@ -41,14 +41,19 @@
     "minimist": "^1.2.0",
     "strip-json-comments": "^2.0.1"
   },
+  "peerDependencies": {
+    "typescript": ">3.0.0"
+  },
   "devDependencies": {
     "@types/fs-extra": "^5.0.2",
     "@types/minimist": "^1.2.0",
     "@types/node": "^8.10.3",
+    "@types/slash": "^2.0.0",
     "@types/strip-json-comments": "0.0.30",
     "mocha": "^5.1.1",
     "slash": "^2.0.0",
-    "tslint": "^5.9.1",
-    "typescript": "~2.8.1"
+    "ts-node": "^8.3.0",
+    "tslint": "^5.17.0",
+    "typescript": "~3.5.0"
   }
 }
