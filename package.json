@@ -50,7 +50,7 @@
     "@types/node": "^8.10.3",
     "@types/slash": "^2.0.0",
     "@types/strip-json-comments": "0.0.30",
-    "mocha": "^5.1.1",
+    "mocha": "^10.2.0",
     "slash": "^2.0.0",
     "ts-node": "^8.3.0",
     "tslint": "^5.17.0",
