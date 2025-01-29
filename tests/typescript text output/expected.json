@@ -6,6 +6,6 @@
 			"c",
 			"a"
 		],
-		"path": "tests/typescript text output/src/bar.ts"
+		"path": "tests/typescript text output/src/bar.mjs"
 	}
 }

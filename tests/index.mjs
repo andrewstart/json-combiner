@@ -1,12 +1,14 @@
-const fs = require('fs');
-const path = require('path');
-const assert = require('assert');
+import fs from 'fs';
+import path from 'path';
+import assert from 'assert';
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
 
-const combiner = require('../');
+const combiner = await import('../lib/index.js');
 
-const folders = fs.readdirSync(__dirname)
+const folders = fs.readdirSync(import.meta.dirname)
 .map((file) => {
-    return path.join(__dirname, file);
+    return path.join(import.meta.dirname, file);
 }).filter((file) => {
     return fs.statSync(file).isDirectory();
 });
@@ -16,8 +18,9 @@ describe('JSON Combiner', function() {
         folders.forEach((folder) => {
             const name = path.basename(folder);
             it(name, function() {
-                this.slow(2000);
-                this.timeout(3500);
+                // typescript compilation takes some time
+                this.slow(3500);
+                this.timeout(7000);
                 const expected = require(path.join(folder, 'expected.json'));
                 return combiner.combine(path.join(folder, 'src'))
                 .then((result) => {

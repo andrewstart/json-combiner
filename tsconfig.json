@@ -7,11 +7,13 @@
         "sourceMap": true,
         "target": "es6",
         "allowJs": false,
-        "module": "commonjs",
+        "module": "es2020",
         "moduleResolution": "node",
         "noUnusedLocals": true,
         "noImplicitAny": true,
-        "stripInternal": true
+        "stripInternal": true,
+        "esModuleInterop": true,
+        "lib": ["ES2020"]
     },
     "compileOnSave": false,
     "include": [

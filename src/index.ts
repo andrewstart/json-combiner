@@ -1,24 +1,22 @@
 //don't want to import minimist if not being used as a CLI,
 //so just importing it for a type here - tsc should strip it out as unused
-import MinimistType = require('minimist');
-import fs = require('fs-extra');
-import path = require('path');
-import strip = require('strip-json-comments');
-//imported on demand, and apparently the types weren't working correctly,
-//so just using JSON types for it (which is all its types did anyway)
-let JSON5:typeof JSON;
-// import type only so it can be compiled out - actual require is on demand
-import TSNode = require('ts-node');
-let tsNodeRequired:boolean = false;
+import MinimistType from 'minimist';
+import fs from 'fs-extra';
+import path from 'path';
+import strip from 'strip-json-comments';
+//imported on demand, just importing types
+import JSON5Type from 'json5';
+let JSON5:typeof JSON5Type;
 
 // import type only so it can be compiled out - actual require is on demand
 import * as typescript from 'typescript';
 let ts:typeof typescript;
 let tsRequired:boolean = false;
 
-function compileTypescript(filename:string, basePath:string):string {
+async function compileTypescript(filename:string, basePath:string):Promise<string>
+{
     if (!tsRequired) {
-        ts = require('typescript');
+        ts = await import('typescript');
     }
     const configPath = ts.findConfigFile(filename, f => ts.sys.fileExists(f));
     const opts:typescript.CompilerOptions = configPath ?
@@ -36,7 +34,7 @@ function compileTypescript(filename:string, basePath:string):string {
     host.writeFile = (_filename, text) => output += text;
 
     let prog = ts.createProgram([filename], opts, host);
-    
+
     // convert base path to play nice with error stripping
     basePath = basePath.replace(/\\/g, '/') + '/';
 
@@ -59,11 +57,11 @@ function compileTypescript(filename:string, basePath:string):string {
     return output;
 }
 
-export function cli()
+export async function cli()
 {
     //import minimist for reals
-    const minimist:typeof MinimistType = require('minimist');
-    
+    const minimist:typeof MinimistType = (await import('minimist')).default;
+
     const args = minimist(process.argv.slice(2), {
         string: ['src', 'out'],
         boolean: ['minify'],
@@ -74,7 +72,7 @@ export function cli()
             h: 'help'
         }
     });
-    
+
     if (args.hasOwnProperty('help') || !args.src || !args.out)
     {
         const help = `
@@ -86,13 +84,13 @@ json-combiner usage:
         console.log(help);
         return;
     }
-    
-    combine(path.join(process.cwd(), args.src))
-    .then((data) =>
+
+    try
     {
-        return save(data, path.join(process.cwd(), args.out), args.minify);
-    })
-    .catch((err:Error|Error[]) =>
+        const data = await combine(path.join(process.cwd(), args.src));
+        await save(data, path.join(process.cwd(), args.out), args.minify);
+    }
+    catch(err)
     {
         process.exitCode = 1;
         if (Array.isArray(err))
@@ -106,7 +104,7 @@ json-combiner usage:
         {
             process.stderr.write(err.message + '\n');
         }
-    });
+    }
 }
 
 
@@ -120,6 +118,8 @@ async function save(data:object, out:string, minify = false):Promise<void>
     return fs.writeFile(out, JSON.stringify(data, null, minify ? undefined : 4));
 }
 
+const ROOT_MERGE_FILENAME = '_';
+
 async function readDir(dir:string, baseDir:string):Promise<object>
 {
     const isArray = dir.endsWith('[]');
@@ -129,6 +129,7 @@ async function readDir(dir:string, baseDir:string):Promise<object>
     for (let i = 0; i < files.length; ++i)
     {
         const filePath = path.join(dir, files[i]);
+        let tempPath =  null;
         try
         {
             const ext = path.extname(files[i]);
@@ -141,7 +142,7 @@ async function readDir(dir:string, baseDir:string):Promise<object>
                 //if it is an array folder, pull the brackets off the name
                 if (filename.endsWith('[]'))
                 {
-                    filename = filename.substr(0, filename.length - 2);
+                    filename = filename.substring(0, filename.length - 2);
                 }
                 fileData = await readDir(filePath, baseDir);
             }
@@ -156,16 +157,16 @@ async function readDir(dir:string, baseDir:string):Promise<object>
             else if (ext === '.json5')
             {
                 if (!JSON5) {
-                    JSON5 = require('json5');
+                    JSON5 = (await import('json5')).default;
                 }
                 fileData = await fs.readFile(filePath, 'utf8');
                 fileData = JSON5.parse(fileData);
             }
             //handle JS files by assuming they either are an object or will
             //return one
-            else if (ext === '.js')
+            else if (ext === '.js' || ext === '.mjs')
             {
-                if (filePath.endsWith('.text.js'))
+                if (filePath.endsWith('.text.js') || filePath.endsWith('.text.mjs'))
                 {
                     filename = path.basename(files[i], '.text.js');
                     fileData = await fs.readFile(filePath, 'utf8');
@@ -173,7 +174,7 @@ async function readDir(dir:string, baseDir:string):Promise<object>
                 else
                 {
                     //require file
-                    fileData = require(filePath);
+                    fileData = (await import('file://'+filePath)).default;
                     //if they exported a function, assume that that function
                     //returns a promise, and await that
                     if (typeof fileData === 'function')
@@ -187,19 +188,16 @@ async function readDir(dir:string, baseDir:string):Promise<object>
                 if (filePath.endsWith('.text.ts'))
                 {
                     filename = path.basename(files[i], '.text.ts');
-                    fileData = compileTypescript(filePath, baseDir);
+                    fileData = await compileTypescript(filePath, baseDir);
                 }
                 else
                 {
-                    if (!tsNodeRequired)
-                    {
-                        // TODO: do I need to use TypeScript to find the tsconfig for the file`
-                        // and provide it to the registration?
-                        (require('ts-node') as typeof TSNode).register();
-                        tsNodeRequired = true;
-                    }
+                    // compile and write a temp file
+                    const compiled = await compileTypescript(filePath, baseDir);
+                    tempPath = filePath.substring(0, filePath.length - 2) + 'mjs';
+                    await fs.writeFile(tempPath, compiled);
                     //require file
-                    fileData = require(filePath);
+                    fileData = (await import('file://' + tempPath)).default;
                     //if they exported a function, assume that that function
                     //returns a promise, and await that
                     if (typeof fileData === 'function')
@@ -216,8 +214,13 @@ async function readDir(dir:string, baseDir:string):Promise<object>
             }
             else
             {
+                // if the filename is the special root name, merge the whole thing
+                if (filename === ROOT_MERGE_FILENAME)
+                {
+                    Object.assign(out, fileData);
+                }
                 //if there is already a thing, we should merge it (folder + file)
-                if (out.hasOwnProperty(filename))
+                else if (out.hasOwnProperty(filename))
                 {
                     //can't merge arrays, because we can't guarantee an order
                     if (Array.isArray(out[filename]) || Array.isArray(fileData))
@@ -257,6 +260,13 @@ async function readDir(dir:string, baseDir:string):Promise<object>
                 const relative = filePath.replace(baseDir, '').replace(/^(\\|\/)/, '');
                 //assume Error
                 errors.push(new Error(`Error processing ${relative}: ${e.message || e}`));
+            }
+        }
+        finally
+        {
+            if (tempPath)
+            {
+                await fs.remove(tempPath);
             }
         }
     }

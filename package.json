@@ -3,15 +3,21 @@
   "version": "2.1.0",
   "description": "Combines JSON file, using folder structure to determine JSON structure",
   "typings": "lib/index.d.ts",
-  "main": "lib/index.js",
+  "type": "module",
+  "exports": {
+    "import": "./lib/index.js"
+  },
   "bin": {
     "json-combiner": "./bin/json-combiner.js"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "scripts": {
     "build": "npm run lint && npm run tsc",
     "tsc": "tsc",
     "lint": "tslint -c tslint.json src/**/*.ts",
-    "test": "mocha tests/index.js",
+    "test": "mocha tests/index.mjs",
     "watch": "tsc -w"
   },
   "files": [
@@ -36,24 +42,21 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "fs-extra": "^6.0.1",
-    "json5": "^2.2.2",
+    "fs-extra": "^11.3.0",
+    "json5": "^2.2.3",
     "minimist": "^1.2.0",
-    "strip-json-comments": "^2.0.1"
+    "strip-json-comments": "^5.0.1"
   },
   "peerDependencies": {
     "typescript": ">3.0.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.2",
+    "@types/fs-extra": "^11.0.0",
     "@types/minimist": "^1.2.0",
-    "@types/node": "^8.10.3",
-    "@types/slash": "^2.0.0",
-    "@types/strip-json-comments": "0.0.30",
-    "mocha": "^10.2.0",
-    "slash": "^2.0.0",
-    "ts-node": "^8.3.0",
+    "@types/node": "^20.0.0",
+    "mocha": "^11.1.0",
+    "slash": "^5.0.0",
     "tslint": "^5.17.0",
-    "typescript": "~3.5.0"
+    "typescript": "^5.0.0"
   }
 }

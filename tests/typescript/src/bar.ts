@@ -1,5 +1,5 @@
 import * as path from 'path';
-import slash = require('slash');
+import slash from 'slash';
 import {BarType} from '../types';
 
 const bar:BarType = {
@@ -9,7 +9,7 @@ const bar:BarType = {
 		"a"
 	],
 	//posix style relative path to this file
-	path: slash(path.relative(process.cwd(), __filename))
+	path: slash(path.relative(process.cwd(), import.meta.filename))
 };
 
-export = bar;
+export default bar;

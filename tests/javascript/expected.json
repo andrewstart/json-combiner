@@ -6,6 +6,6 @@
 			"b",
 			"c"
 		],
-		"path": "tests/javascript/src/bar.js"
+		"path": "tests/javascript/src/bar.mjs"
 	}
 }

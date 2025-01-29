@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-require('../').cli();
+import {cli} from '../lib/index.js'
+cli();

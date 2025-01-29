@@ -6,8 +6,8 @@ JSON file with the same structure as the source folder.
 json-combiner will take the following types of files:
  * .json - Standard JS comments are stripped out of these files
  * .json5 - https://json5.org/
- * .js - Uses Node's `require()` to load the file. See below.
- * .ts - Uses ts-node and Node's `require()` to load the file. See below.
+ * .mjs - Uses Node's `import()` to load the file. See below.
+ * .ts - Uses tsc to compile and Node's `import()` to load the file. See below.
 
 ## Installation
 `npm install json-combiner`
@@ -99,6 +99,17 @@ Will generate the following JSON file as output:
 }
 ```
 
+### Root files
+If a filename is a single underscore (`_.json` for example), it will be considered the root object of that folder.
+This is primarily useful at the top level of your folder structure. The following example:
+```
+src/
+    _.json
+    foo/
+        bar.json
+```
+will merge the `foo` property/contents onto the contents of `_.json`.
+
 ### Folder-as-Array Example
 
 The contents of a folder can be grouped together as an array. The folder name must
@@ -129,20 +140,22 @@ since they are now array index items.
 
 ### Handling JavaScript files
 
-A JavaScript file will be required (`require()`), and the module export (`module.exports = ...`)
+A JavaScript file will be imported (`import()`), and the module export (`export default ...`)
 will be used as the object to be stringified. If the module export is a function, then that
 function will be called to obtain the result - if you need to do async stuff then return a promise
 from your function.
 
+The file _must_ be an ES Module.
+
 ```js
-module.exports = {
+export default {
     TWO_PI: Math.PI * 2,
     foo: "bar"
 };
 ```
 
 ```js
-module.exports = () => {
+export default () => {
     return new Promise((resolve) => {
         let rtn = [];
         for(let i = 100; i > 50; --i)
@@ -156,14 +169,14 @@ module.exports = () => {
 
 ### Handling TypeScript files
 
-A TypeScript file will be required (`require()`) using `ts-node`, and the module export (`export = ...`)
+A TypeScript file will be imported (`import()`) after being compiled using `typescript` and a temp .mjs file written, and the module export (`export default ...`)
 will be used as the object to be stringified. If the module export is a function, then that
 function will be called to obtain the result - if you need to do async stuff then return a promise
 from your function.
-*NOTE:* `ts-node` is a peer dependency, you must provide the version you wish to use.
+*NOTE:* `typescript` is a peer dependency, you must provide the version you wish to use.
 
 ```typescript
-export = {
+export default {
     TWO_PI: Math.PI * 2,
     foo: "bar"
 };

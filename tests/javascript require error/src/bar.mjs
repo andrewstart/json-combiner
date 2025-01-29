@@ -1,15 +1,12 @@
-import * as path from 'path';
+import path from 'path';
 import slash from 'slash';
-import {BarType} from '../types';
 
-const bar:BarType = {
+export default {
 	value: [
+		"a",
 		"b",
-		"c",
-		"a"
+		"c"
 	],
 	//posix style relative path to this file
 	path: slash(path.relatives(process.cwd(), import.meta.filename))
 };
-
-export default bar;
