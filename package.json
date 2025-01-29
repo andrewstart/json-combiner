@@ -1,6 +1,6 @@
 {
   "name": "json-combiner",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "description": "Combines JSON file, using folder structure to determine JSON structure",
   "typings": "lib/index.d.ts",
   "type": "module",
