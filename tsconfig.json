@@ -5,7 +5,7 @@
         "declarationDir": "lib",
         "inlineSources": true,
         "sourceMap": true,
-        "target": "es6",
+        "target": "es2020",
         "allowJs": false,
         "module": "es2020",
         "moduleResolution": "node",

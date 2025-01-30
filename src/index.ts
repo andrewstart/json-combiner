@@ -13,6 +13,10 @@ import * as typescript from 'typescript';
 let ts:typeof typescript;
 let tsRequired:boolean = false;
 
+export const Settings = {
+    justTranspileTS: false,
+};
+
 async function compileTypescript(filename:string, basePath:string):Promise<string>
 {
     if (!tsRequired) {
@@ -26,6 +30,14 @@ async function compileTypescript(filename:string, basePath:string):Promise<strin
     // simple JS output.
     opts.sourceMap = false;
     opts.declaration = false;
+    opts.noEmit = false;
+
+    if (Settings.justTranspileTS)
+    {
+        // just read and transpile the file - actual compilation isn't working correctly when importing outside things
+        const text = await fs.readFile(filename, 'utf8');
+        return ts.transpileModule(text, { compilerOptions: opts }).outputText;
+    }
 
     let host = ts.createCompilerHost(opts);
 
@@ -64,12 +76,13 @@ export async function cli()
 
     const args = minimist(process.argv.slice(2), {
         string: ['src', 'out'],
-        boolean: ['minify'],
+        boolean: ['minify', 'transpile'],
         alias: {
             s: 'src',
             o: 'out',
             m: 'minify',
-            h: 'help'
+            h: 'help',
+            t: 'transpile',
         }
     });
 
@@ -80,6 +93,7 @@ json-combiner usage:
     -s, --src  Source to folder of files to combine
     -o, --out  Output JSON path (single file)
     -m, --minify  If the output file should be minified. Default is false.
+    -t, --transpile  If typescript files should be transpiled without type checking. Default is false.
 `;
         console.log(help);
         return;
@@ -87,6 +101,10 @@ json-combiner usage:
 
     try
     {
+        if (args.transpile)
+        {
+            Settings.justTranspileTS = true;
+        }
         const data = await combine(path.join(process.cwd(), args.src));
         await save(data, path.join(process.cwd(), args.out), args.minify);
     }
